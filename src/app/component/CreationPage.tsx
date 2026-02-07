@@ -8,6 +8,7 @@ interface Word {
   id: string;
   word: string;
   meaning: string;
+  review: boolean;
 }
 
 interface WordSection {
@@ -15,6 +16,7 @@ interface WordSection {
   title: string;
   description: string;
   value: string;
+  review: boolean;
 }
 
 interface FeedbackData {
@@ -54,6 +56,7 @@ export const CreationPage = () => {
           title: word.word,
           description: `뜻 설명 : ${word.meaning}`,
           value: "",
+          review: word.review,
         }));
         setWordSections(sections);
       }
@@ -137,7 +140,6 @@ export const CreationPage = () => {
   };
 
   const handleSubmit = async () => {
-    console.log("예문 데이터:", wordSections);
     setIsSaving(true);
     try {
       await saveSentences();
@@ -275,10 +277,10 @@ export const CreationPage = () => {
                       <p className="text-slate-600">단어를 불러오는 중...</p>
                     </div>
                   ) : (
-                    wordSections.map((section, index) => (
+                    wordSections.map((section) => (
                       <WordSectionCard
                         key={section.id}
-                        tone={index % 2 === 0 ? "blue" : "orange"}
+                        tone={section.review ? "orange" : "blue"}
                         title={section.title}
                         description={section.description}
                         value={section.value}
