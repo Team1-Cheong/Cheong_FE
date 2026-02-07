@@ -16,6 +16,7 @@ type Props = {
   onPrevMonth: () => void;
   onNextMonth: () => void;
   today: Today;
+  solvedDays: Today[];
 };
 
 const pad2 = (n: number) => String(n).padStart(2, "0");
@@ -27,6 +28,17 @@ const CAL_GRID_H = 560;
 const getDaysInMonth = (year: number, month: number) =>
   new Date(year, month, 0).getDate();
 
+const toDateKey = (year: number, month: number, day: number) =>
+  `${year}-${pad2(month)}-${pad2(day)}`;
+
+const streakToneClasses = [
+  "bg-[#E8EDFF] text-[#5A8DEE]",
+  "bg-[#D3DBFF] text-[#4A63FF]",
+  "bg-[#BDC8FF] text-[#3E54E8]",
+  "bg-[#A3B3FF] text-white",
+  "bg-[#7E90FF] text-white",
+];
+
 export default function CalendarView({
   year,
   month,
@@ -35,6 +47,7 @@ export default function CalendarView({
   onPrevMonth,
   onNextMonth,
   today,
+  solvedDays,
 }: Props) {
   const { cells, daysInMonth, weeksCount } = useMemo(() => {
     const dim = getDaysInMonth(year, month);
@@ -55,12 +68,38 @@ export default function CalendarView({
 
   const isThisMonth = year === today.year && month === today.month;
 
+  const solvedSet = useMemo(() => {
+    const set = new Set<string>();
+    solvedDays.forEach((d) => {
+      set.add(toDateKey(d.year, d.month, d.day));
+    });
+    return set;
+  }, [solvedDays]);
+
   const isFutureDate = (day: number) => {
     if (year > today.year) return true;
     if (year < today.year) return false;
     if (month > today.month) return true;
     if (month < today.month) return false;
     return day > today.day;
+  };
+
+  const getStreakLength = (day: number) => {
+    let length = 0;
+    const cursor = new Date(year, month - 1, day);
+
+    while (true) {
+      const key = toDateKey(
+        cursor.getFullYear(),
+        cursor.getMonth() + 1,
+        cursor.getDate(),
+      );
+      if (!solvedSet.has(key)) break;
+      length += 1;
+      cursor.setDate(cursor.getDate() - 1);
+    }
+
+    return length;
   };
 
   useEffect(() => {
@@ -148,6 +187,12 @@ export default function CalendarView({
 
             const future = isFutureDate(day);
             const isSelected = day === selectedDay;
+            const streakLength = future ? 0 : getStreakLength(day);
+            const streakIndex = Math.min(
+              Math.max(streakLength - 1, 0),
+              streakToneClasses.length - 1,
+            );
+            const isStreakDay = streakLength > 0;
 
             return (
               <button
@@ -162,7 +207,9 @@ export default function CalendarView({
                     ? "bg-[#586BFF] text-white shadow-[0_6px_18px_rgba(88,107,255,0.35)]"
                     : future
                       ? "bg-transparent"
-                      : "text-slate-700 hover:bg-slate-100",
+                      : isStreakDay
+                        ? streakToneClasses[streakIndex]
+                        : "text-slate-700 hover:bg-slate-100",
                 ].join(" ")}
               >
                 {day}

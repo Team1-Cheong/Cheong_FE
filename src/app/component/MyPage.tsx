@@ -5,9 +5,18 @@ import { useRouter } from "next/navigation";
 
 export const MyPage = () => {
   const router = useRouter();
-  const [description, setDescription] = useState("안녕하세요! 영어 공부를 열심히 하고 있습니다.");
+  const [description, setDescription] = useState(
+    "안녕하세요! 어휘 공부를 열심히 하고 있습니다.",
+  );
   const [isEditing, setIsEditing] = useState(false);
   const [tempDescription, setTempDescription] = useState(description);
+  const badges = [
+    { id: 1, title: "처음 달성", detail: "첫 문제 해결", achieved: true },
+    { id: 2, title: "5일 연속", detail: "연속 학습 5일", achieved: true },
+    { id: 3, title: "10일 연속", detail: "연속 학습 10일", achieved: false },
+    { id: 4, title: "30일 연속", detail: "연속 학습 30일", achieved: false },
+    { id: 5, title: "문제 100개", detail: "풀이 100개 이상", achieved: false },
+  ];
 
   const handleLogout = () => {
     console.log("로그아웃");
@@ -130,6 +139,33 @@ export const MyPage = () => {
               <div className="flex-1">
                 <p className="text-sm font-semibold text-slate-900">20/365</p>
               </div>
+            </div>
+          </div>
+
+          {/* 뱃지 목록 */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-slate-900">뱃지</h2>
+              <span className="text-xs text-slate-500">
+                {badges.filter((badge) => badge.achieved).length}/
+                {badges.length}
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {badges.map((badge) => (
+                <div
+                  key={badge.id}
+                  className={[
+                    "rounded-md border px-3 py-2 text-left text-xs",
+                    badge.achieved
+                      ? "border-indigo-200 bg-indigo-50 text-indigo-700"
+                      : "border-slate-200 bg-slate-50 text-slate-500",
+                  ].join(" ")}
+                >
+                  <p className="font-semibold">{badge.title}</p>
+                  <p className="mt-1 text-[11px]">{badge.detail}</p>
+                </div>
+              ))}
             </div>
           </div>
 
