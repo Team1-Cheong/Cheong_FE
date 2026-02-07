@@ -13,6 +13,7 @@ type Props = {
   onPrevMonth: () => void;
   onNextMonth: () => void;
   today: Today;
+  solvedDays: Today[];
 };
 
 const formatDate = (y: number, m: number, d: number) =>

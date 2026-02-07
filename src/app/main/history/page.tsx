@@ -17,6 +17,37 @@ export default function Page() {
   const [month, setMonth] = useState(today.month);
   const [selectedDay, setSelectedDay] = useState(today.day);
 
+  const solvedDays = useMemo(() => {
+    const streakDays = 5;
+    const recent: { year: number; month: number; day: number }[] = [];
+
+    for (let i = 0; i < streakDays; i += 1) {
+      const date = new Date(today.year, today.month - 1, today.day - i);
+      recent.push({
+        year: date.getFullYear(),
+        month: date.getMonth() + 1,
+        day: date.getDate(),
+      });
+    }
+
+    const gapStart = new Date(today.year, today.month - 1, today.day - 9);
+    const gapNext = new Date(today.year, today.month - 1, today.day - 10);
+
+    return [
+      ...recent,
+      {
+        year: gapStart.getFullYear(),
+        month: gapStart.getMonth() + 1,
+        day: gapStart.getDate(),
+      },
+      {
+        year: gapNext.getFullYear(),
+        month: gapNext.getMonth() + 1,
+        day: gapNext.getDate(),
+      },
+    ];
+  }, [today]);
+
   const getDaysInMonth = (y: number, m: number) => new Date(y, m, 0).getDate();
 
   const onPrevMonth = () => {
@@ -54,6 +85,7 @@ export default function Page() {
       onPrevMonth={onPrevMonth}
       onNextMonth={onNextMonth}
       today={today}
+      solvedDays={solvedDays}
     />
   );
 }
