@@ -23,11 +23,11 @@ const CAL_GRID_H = 560;
 const toIso = (y: number, m: number, d: number) => `${y}-${pad2(m)}-${pad2(d)}`;
 
 const streakToneClasses = [
-  "bg-[#E8EDFF] text-[#5A8DEE]",
-  "bg-[#D3DBFF] text-[#4A63FF]",
-  "bg-[#BDC8FF] text-[#3E54E8]",
-  "bg-[#A3B3FF] text-white",
-  "bg-[#7E90FF] text-white",
+  "bg-[#E8EDFF]",
+  "bg-[#D3DBFF]",
+  "bg-[#BDC8FF]",
+  "bg-[#A3B3FF]",
+  "bg-[#7E90FF]",
 ];
 
 export default function CalendarView({
@@ -84,7 +84,7 @@ export default function CalendarView({
   const solvedSet = useMemo(() => new Set(solvedDays), [solvedDays]);
 
   const streakToneMap = useMemo(() => {
-    const keys: string[] = [];
+    const keysNewestToOldest: string[] = [];
     const cursor = new Date(today.year, today.month - 1, today.day);
 
     while (true) {
@@ -95,21 +95,22 @@ export default function CalendarView({
       );
       if (!solvedSet.has(key)) break;
 
-      keys.push(key);
+      keysNewestToOldest.push(key);
       cursor.setDate(cursor.getDate() - 1);
     }
 
-    if (keys.length < 2) return new Map<string, string>();
+    if (keysNewestToOldest.length < 2) return new Map<string, string>();
 
+    const keysOldestToNewest = keysNewestToOldest.slice().reverse();
     const map = new Map<string, string>();
 
-    const recent5OldestToNewest = keys.slice(0, 5).reverse();
-    recent5OldestToNewest.forEach((key, idx) => {
+    const first5 = keysOldestToNewest.slice(0, 5);
+    first5.forEach((key, idx) => {
       map.set(key, streakToneClasses[idx]);
     });
 
-    const beyond5 = keys.slice(5);
-    beyond5.forEach((key) => {
+    const after5 = keysOldestToNewest.slice(5);
+    after5.forEach((key) => {
       map.set(key, streakToneClasses[4]);
     });
 
@@ -170,8 +171,12 @@ export default function CalendarView({
 
             const future = isFutureDate(day);
             const isSelected = day === selectedDay;
+
             const iso = toIso(year, month, day);
             const streakClass = streakToneMap.get(iso);
+
+            const isToday =
+              year === today.year && month === today.month && day === today.day;
 
             return (
               <button
@@ -189,7 +194,9 @@ export default function CalendarView({
                     : future
                       ? ""
                       : streakClass
-                        ? `rounded-full ${streakClass}`
+                        ? `rounded-full ${streakClass} ${
+                            isToday ? "text-white" : "text-slate-700"
+                          }`
                         : "hover:text-slate-900",
                 ].join(" ")}
               >
