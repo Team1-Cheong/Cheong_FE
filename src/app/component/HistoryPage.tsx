@@ -55,8 +55,8 @@ export default function HistoryPage(props: Props) {
 
         if (!res.ok) throw new Error();
 
-        const data: HistoryApiResponse = await res.json();
-        setHistory(data);
+        const json = await res.json();
+        setHistory(json.result);
       } catch (e) {
         if ((e as { name?: string }).name === "AbortError") return;
         setHistory([]);
@@ -76,7 +76,7 @@ export default function HistoryPage(props: Props) {
   const historyByDate = useMemo(() => {
     const map = new Map<ISODateString, HistoryItem[]>();
 
-    history.forEach((item) => {
+    (Array.isArray(history) ? history : []).forEach((item) => {
       const iso = item.createdAt.slice(0, 10) as ISODateString;
 
       if (!map.has(iso)) map.set(iso, []);
