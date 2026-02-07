@@ -84,22 +84,22 @@ export const CreationPage = () => {
   };
 
   return (
-    <div className="w-full bg-white text-slate-900 flex flex-col overflow-hidden">
-      <main className="h-[calc(100vh-81px)] overflow-hidden flex flex-col items-center px-8 py-8">
-        <div className="mb-6 w-full max-w-6xl">
-          <h1 className="text-[36px] font-bold text-slate-900">
+    <div className="w-full bg-white text-slate-900 flex flex-col">
+      <main className="flex flex-col items-center px-8 py-10">
+        <div className="mb-10 w-full max-w-6xl">
+          <h1 className="text-[40px] font-bold text-slate-900">
             {showFeedback ? "예문 피드백" : "예문 만들어보기!"}
           </h1>
-          <p className="mt-2 text-[14px] text-slate-600">
+          <p className="mt-2 text-[15px] text-slate-600">
             {showFeedback
               ? "AI가 예문에 대한 피드백을 제공했어요."
               : "주어진 단어를 활용해 예문을 만들어보세요."}
           </p>
         </div>
 
-        <div className="mx-auto grid w-full max-w-6xl flex-1 grid-cols-1 gap-10 overflow-hidden lg:grid-cols-2 lg:items-stretch">
-          <section className="flex flex-col items-center justify-center gap-6 overflow-hidden lg:pr-12 lg:relative lg:after:absolute lg:after:top-0 lg:after:bottom-0 lg:after:right-0 lg:after:w-px lg:after:bg-slate-200">
-            <div className="relative h-44 w-40">
+        <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-12 lg:grid-cols-2 lg:items-stretch">
+          <section className="flex flex-col items-center justify-center space-y-6 lg:pr-12 lg:relative lg:after:absolute lg:after:top-0 lg:after:bottom-0 lg:after:right-0 lg:after:w-px lg:after:bg-slate-200">
+            <div className="relative h-48 w-40">
               <img
                 src="/streak.svg"
                 alt="Streak"
@@ -107,96 +107,100 @@ export const CreationPage = () => {
               />
             </div>
 
-            <div className="inline-flex rounded-full bg-indigo-100 px-6 py-2">
+            <div className="inline-flex rounded-full bg-indigo-100 px-6 py-2.5">
               <span className="text-sm font-semibold text-indigo-700">
                 10일째 공부중
               </span>
             </div>
           </section>
 
-          <section className="w-full lg:pl-12 flex flex-col overflow-hidden">
+          <section className="w-full space-y-6 lg:pl-12">
             {showFeedback ? (
-              <div className="space-y-3">
-                {feedbackData.map((feedback) => (
-                  <div
-                    key={feedback.id}
-                    className="rounded-lg bg-blue-50 p-5 space-y-3"
+              <>
+                <div className="space-y-4">
+                  {feedbackData.map((feedback) => (
+                    <div
+                      key={feedback.id}
+                      className="rounded-lg bg-blue-50 p-6 space-y-3"
+                    >
+                      <div className="rounded-lg bg-white p-4 space-y-2">
+                        <h3 className="text-sm font-semibold text-slate-900">
+                          {wordSections[feedback.id - 1]?.title}
+                        </h3>
+                        <p className="text-xs text-slate-600">
+                          {wordSections[feedback.id - 1]?.description}
+                        </p>
+                      </div>
+
+                      <div className="rounded-lg bg-white p-4">
+                        <p className="text-xs text-slate-600">
+                          {wordSections[feedback.id - 1]?.value}
+                        </p>
+                      </div>
+
+                      <div className="rounded-lg bg-white p-4 space-y-2">
+                        <h4 className="text-sm font-semibold text-slate-900">
+                          한줄평
+                        </h4>
+                        <p className="text-xs text-slate-600">
+                          {feedback.sentiment}
+                        </p>
+                      </div>
+
+                      <div className="rounded-lg bg-white p-4 space-y-2">
+                        <h4 className="text-sm font-semibold text-slate-900">
+                          적용 상황
+                        </h4>
+                        <ul className="space-y-1">
+                          {feedback.situations.map((situation, idx) => (
+                            <li
+                              key={`${feedback.id}-${idx}`}
+                              className="text-xs text-slate-600 flex items-start"
+                            >
+                              <span className="mr-2">•</span>
+                              <span>{situation}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex justify-end pt-4">
+                  <button
+                    onClick={handleGoBack}
+                    className="rounded-full bg-indigo-500 px-8 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-600"
                   >
-                    <div className="rounded-lg bg-white p-4 space-y-2">
-                      <h3 className="text-sm font-semibold text-slate-900">
-                        {wordSections[feedback.id - 1]?.title}
-                      </h3>
-                      <p className="text-xs text-slate-600">
-                        {wordSections[feedback.id - 1]?.description}
-                      </p>
-                    </div>
-
-                    <div className="rounded-lg bg-white p-4">
-                      <p className="text-xs text-slate-600">
-                        {wordSections[feedback.id - 1]?.value}
-                      </p>
-                    </div>
-
-                    <div className="rounded-lg bg-white p-4 space-y-2">
-                      <h4 className="text-sm font-semibold text-slate-900">
-                        한줄평
-                      </h4>
-                      <p className="text-xs text-slate-600">
-                        {feedback.sentiment}
-                      </p>
-                    </div>
-
-                    <div className="rounded-lg bg-white p-4 space-y-2">
-                      <h4 className="text-sm font-semibold text-slate-900">
-                        적용 상황
-                      </h4>
-                      <ul className="space-y-1">
-                        {feedback.situations.map((situation, idx) => (
-                          <li
-                            key={`${feedback.id}-${idx}`}
-                            className="text-xs text-slate-600 flex items-start"
-                          >
-                            <span className="mr-2">•</span>
-                            <span>{situation}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                    다시 쓰기
+                  </button>
+                </div>
+              </>
             ) : (
-              <div className="space-y-3">
-                {wordSections.map((section, index) => (
-                  <WordSectionCard
-                    key={section.id}
-                    tone={index === 2 ? "orange" : "blue"}
-                    title={section.title}
-                    description={section.description}
-                    value={section.value}
-                    onChange={(v) => handleInputChange(section.id, v)}
-                  />
-                ))}
-              </div>
-            )}
+              <>
+                <div className="space-y-4">
+                  {wordSections.map((section, index) => (
+                    <WordSectionCard
+                      key={section.id}
+                      tone={index === 2 ? "orange" : "blue"}
+                      title={section.title}
+                      description={section.description}
+                      value={section.value}
+                      onChange={(v) => handleInputChange(section.id, v)}
+                    />
+                  ))}
+                </div>
 
-            <div className="mt-auto pt-4 flex justify-end">
-              {showFeedback ? (
-                <button
-                  onClick={handleGoBack}
-                  className="rounded-full bg-indigo-500 px-8 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-600"
-                >
-                  다시 쓰기
-                </button>
-              ) : (
-                <button
-                  onClick={handleSubmit}
-                  className="rounded-full bg-indigo-500 px-8 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-600"
-                >
-                  예문 남기기
-                </button>
-              )}
-            </div>
+                <div className="flex justify-end pt-4">
+                  <button
+                    onClick={handleSubmit}
+                    className="rounded-full bg-indigo-500 px-8 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-600"
+                  >
+                    예문 남기기
+                  </button>
+                </div>
+              </>
+            )}
           </section>
         </div>
       </main>
