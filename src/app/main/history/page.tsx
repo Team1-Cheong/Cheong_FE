@@ -1,10 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import HistoryPage from "../../component/HistoryPage";
+import type { HomeApiResponse } from "../history/types";
+import { USER_ID } from "@/constants/user";
+
+type Today = { year: number; month: number; day: number };
 
 export default function Page() {
-  const today = useMemo(() => {
+  const today: Today = useMemo(() => {
     const now = new Date();
     return {
       year: now.getFullYear(),
@@ -17,36 +21,39 @@ export default function Page() {
   const [month, setMonth] = useState(today.month);
   const [selectedDay, setSelectedDay] = useState(today.day);
 
-  const solvedDays = useMemo(() => {
-    const streakDays = 5;
-    const recent: { year: number; month: number; day: number }[] = [];
+  const [home, setHome] = useState<HomeApiResponse | null>(null);
+  const [homeError, setHomeError] = useState<string | null>(null);
 
-    for (let i = 0; i < streakDays; i += 1) {
-      const date = new Date(today.year, today.month - 1, today.day - i);
-      recent.push({
-        year: date.getFullYear(),
-        month: date.getMonth() + 1,
-        day: date.getDate(),
-      });
-    }
+  useEffect(() => {
+    const ac = new AbortController();
 
-    const gapStart = new Date(today.year, today.month - 1, today.day - 9);
-    const gapNext = new Date(today.year, today.month - 1, today.day - 10);
+    (async () => {
+      try {
+        setHomeError(null);
 
-    return [
-      ...recent,
-      {
-        year: gapStart.getFullYear(),
-        month: gapStart.getMonth() + 1,
-        day: gapStart.getDate(),
-      },
-      {
-        year: gapNext.getFullYear(),
-        month: gapNext.getMonth() + 1,
-        day: gapNext.getDate(),
-      },
-    ];
-  }, [today]);
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/home?userId=${USER_ID}`,
+          {
+            method: "GET",
+            signal: ac.signal,
+            headers: { "Content-Type": "application/json" },
+            cache: "no-store",
+          },
+        );
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        const data = (await res.json()) as HomeApiResponse;
+        setHome(data);
+      } catch (e) {
+        if ((e as { name?: string }).name === "AbortError") return;
+        setHomeError("홈 데이터를 불러오지 못했어요.");
+        setHome(null);
+      }
+    })();
+
+    return () => ac.abort();
+  }, []);
 
   const getDaysInMonth = (y: number, m: number) => new Date(y, m, 0).getDate();
 
@@ -85,7 +92,9 @@ export default function Page() {
       onPrevMonth={onPrevMonth}
       onNextMonth={onNextMonth}
       today={today}
-      solvedDays={solvedDays}
+      home={home}
+      homeError={homeError}
+      solvedDays={home?.studiedDates ?? []}
     />
   );
 }

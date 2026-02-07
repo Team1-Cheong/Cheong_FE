@@ -2,11 +2,7 @@
 
 import { useEffect, useMemo } from "react";
 
-export type Today = {
-  year: number;
-  month: number;
-  day: number;
-};
+type Today = { year: number; month: number; day: number };
 
 type Props = {
   year: number;
@@ -15,21 +11,16 @@ type Props = {
   onChangeDay: (day: number) => void;
   onPrevMonth: () => void;
   onNextMonth: () => void;
-  today: Today;
-  solvedDays: Today[];
+  today?: Today;
+  solvedDays?: string[];
 };
 
 const pad2 = (n: number) => String(n).padStart(2, "0");
-
 const dayLabels = ["일", "월", "화", "수", "목", "금", "토"];
 
 const CAL_GRID_H = 560;
 
-const getDaysInMonth = (year: number, month: number) =>
-  new Date(year, month, 0).getDate();
-
-const toDateKey = (year: number, month: number, day: number) =>
-  `${year}-${pad2(month)}-${pad2(day)}`;
+const toIso = (y: number, m: number, d: number) => `${y}-${pad2(m)}-${pad2(d)}`;
 
 const streakToneClasses = [
   "bg-[#E8EDFF] text-[#5A8DEE]",
@@ -46,18 +37,21 @@ export default function CalendarView({
   onChangeDay,
   onPrevMonth,
   onNextMonth,
-  today,
-  solvedDays,
+  solvedDays = [],
+  today = {
+    year: new Date().getFullYear(),
+    month: new Date().getMonth() + 1,
+    day: new Date().getDate(),
+  },
 }: Props) {
   const { cells, daysInMonth, weeksCount } = useMemo(() => {
-    const dim = getDaysInMonth(year, month);
+    const dim = new Date(year, month, 0).getDate();
     const firstDay = new Date(year, month - 1, 1).getDay();
 
     const total = firstDay + dim;
     const wc = Math.ceil(total / 7);
 
     const arr: (number | null)[] = [];
-
     for (let i = 0; i < firstDay; i++) arr.push(null);
     for (let d = 1; d <= dim; d++) arr.push(d);
 
@@ -67,14 +61,17 @@ export default function CalendarView({
   }, [year, month]);
 
   const isThisMonth = year === today.year && month === today.month;
+  const nextDisabled = isThisMonth;
 
-  const solvedSet = useMemo(() => {
-    const set = new Set<string>();
-    solvedDays.forEach((d) => {
-      set.add(toDateKey(d.year, d.month, d.day));
-    });
-    return set;
-  }, [solvedDays]);
+  useEffect(() => {
+    if (selectedDay > daysInMonth) onChangeDay(daysInMonth);
+
+    const viewingFuture =
+      year > today.year || (year === today.year && month > today.month);
+
+    if (viewingFuture) onChangeDay(today.day);
+    else if (isThisMonth && selectedDay > today.day) onChangeDay(today.day);
+  }, [daysInMonth, year, month, selectedDay, today, isThisMonth, onChangeDay]);
 
   const isFutureDate = (day: number) => {
     if (year > today.year) return true;
@@ -84,54 +81,40 @@ export default function CalendarView({
     return day > today.day;
   };
 
-  const getStreakLength = (day: number) => {
-    let length = 0;
-    const cursor = new Date(year, month - 1, day);
+  const solvedSet = useMemo(() => new Set(solvedDays), [solvedDays]);
+
+  const streakToneMap = useMemo(() => {
+    const keys: string[] = [];
+    const cursor = new Date(today.year, today.month - 1, today.day);
 
     while (true) {
-      const key = toDateKey(
+      const key = toIso(
         cursor.getFullYear(),
         cursor.getMonth() + 1,
         cursor.getDate(),
       );
       if (!solvedSet.has(key)) break;
-      length += 1;
+
+      keys.push(key);
       cursor.setDate(cursor.getDate() - 1);
     }
 
-    return length;
-  };
+    if (keys.length < 2) return new Map<string, string>();
 
-  useEffect(() => {
-    if (selectedDay > daysInMonth) {
-      onChangeDay(daysInMonth);
-      return;
-    }
+    const map = new Map<string, string>();
 
-    const viewingFutureMonth =
-      year > today.year || (year === today.year && month > today.month);
+    const recent5OldestToNewest = keys.slice(0, 5).reverse();
+    recent5OldestToNewest.forEach((key, idx) => {
+      map.set(key, streakToneClasses[idx]);
+    });
 
-    if (viewingFutureMonth) {
-      onChangeDay(today.day);
-      return;
-    }
+    const beyond5 = keys.slice(5);
+    beyond5.forEach((key) => {
+      map.set(key, streakToneClasses[4]);
+    });
 
-    if (isThisMonth && selectedDay > today.day) {
-      onChangeDay(today.day);
-    }
-  }, [
-    selectedDay,
-    daysInMonth,
-    year,
-    month,
-    today.year,
-    today.month,
-    today.day,
-    isThisMonth,
-    onChangeDay,
-  ]);
-
-  const nextDisabled = isThisMonth;
+    return map;
+  }, [solvedSet, today]);
 
   return (
     <div className="rounded-2xl bg-white/70 shadow-[0_6px_24px_rgba(15,23,42,0.06)] ring-1 ring-slate-100">
@@ -177,7 +160,7 @@ export default function CalendarView({
           style={{
             height: `${CAL_GRID_H}px`,
             gridTemplateRows: `repeat(${weeksCount}, minmax(0, 1fr))`,
-            rowGap: "20px",
+            rowGap: "22px",
           }}
         >
           {cells.map((day, idx) => {
@@ -187,12 +170,8 @@ export default function CalendarView({
 
             const future = isFutureDate(day);
             const isSelected = day === selectedDay;
-            const streakLength = future ? 0 : getStreakLength(day);
-            const streakIndex = Math.min(
-              Math.max(streakLength - 1, 0),
-              streakToneClasses.length - 1,
-            );
-            const isStreakDay = streakLength > 0;
+            const iso = toIso(year, month, day);
+            const streakClass = streakToneMap.get(iso);
 
             return (
               <button
@@ -201,15 +180,17 @@ export default function CalendarView({
                 disabled={future}
                 onClick={() => onChangeDay(day)}
                 className={[
-                  "mx-auto grid h-10 w-10 place-items-center rounded-full text-[14px] font-semibold transition",
-                  future ? "cursor-not-allowed text-slate-300" : "",
+                  "mx-auto grid h-10 w-10 place-items-center text-[14px] font-semibold transition",
+                  future
+                    ? "cursor-not-allowed text-slate-300"
+                    : "text-slate-700",
                   isSelected
-                    ? "bg-[#586BFF] text-white shadow-[0_6px_18px_rgba(88,107,255,0.35)]"
+                    ? "rounded-full bg-[#586BFF] text-white shadow-[0_6px_18px_rgba(88,107,255,0.35)]"
                     : future
-                      ? "bg-transparent"
-                      : isStreakDay
-                        ? streakToneClasses[streakIndex]
-                        : "text-slate-700 hover:bg-slate-100",
+                      ? ""
+                      : streakClass
+                        ? `rounded-full ${streakClass}`
+                        : "hover:text-slate-900",
                 ].join(" ")}
               >
                 {day}
