@@ -1,10 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { USER_ID } from "../../constants/user";
 import WordSectionCard from "../main/create_sentences/components/WordSectionCard";
 
+interface Word {
+  id: string;
+  word: string;
+  meaning: string;
+}
+
 interface WordSection {
-  id: number;
+  id: string;
   title: string;
   description: string;
   value: string;
@@ -18,65 +25,126 @@ interface FeedbackData {
 
 export const CreationPage = () => {
   const [showFeedback, setShowFeedback] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [studiedDays, setStudiedDays] = useState(10);
 
-  const [wordSections, setWordSections] = useState<WordSection[]>([
-    {
-      id: 1,
-      title: "단어 1",
-      description:
-        "뜻 설명 : -- 라는 뜻입니다. -- 라는 뜻입니다. -- 라는 뜻입니다",
-      value: "",
-    },
-    {
-      id: 2,
-      title: "단어 2",
-      description:
-        "뜻 설명 : -- 라는 뜻입니다. -- 라는 뜻입니다. -- 라는 뜻입니다",
-      value: "",
-    },
-    {
-      id: 3,
-      title: "단어 3",
-      description:
-        "뜻 설명 : -- 라는 뜻입니다. -- 라는 뜻입니다. -- 라는 뜻입니다",
-      value: "",
-    },
-  ]);
+  const [wordSections, setWordSections] = useState<WordSection[]>([]);
+  const [feedbackData, setFeedbackData] = useState<FeedbackData[]>([]);
 
-  const [feedbackData] = useState<FeedbackData[]>([
-    {
-      id: 1,
-      sentiment: "정말 잘하셨어요! 예시 표현을 완벽하게 이해하셨네요.",
-      situations: ["이런 상황에서~", "저런 상황에서~", "또 다른 상황에서~"],
-    },
-    {
-      id: 2,
-      sentiment: "아주 재미있는 표현 사용법이에요! 자연스럽습니다.",
-      situations: [
-        "회의가 시작될 때",
-        "누군가의 의견을 묻고 싶을 때",
-        "긍정적인 답변이 나올 것 같을 때",
-      ],
-    },
-    {
-      id: 3,
-      sentiment: "완벽한 표현 활용입니다! 이 단어의 뉘앙스를 잘 파악했어요.",
-      situations: [
-        "따뜻한 말투로 상대를 격려할 때",
-        "누군가가 어려움을 겪을 때",
-      ],
-    },
-  ]);
+  const fetchWords = async (userId: string = USER_ID) => {
+    try {
+      setLoading(true);
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/get`,
+        {
+          method: "GET",
+          headers: {
+            accept: "*/*",
+            "X-User-Id": userId,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+      const data = await response.json();
 
-  const handleInputChange = (id: number, newValue: string) => {
+      if (data.words && Array.isArray(data.words)) {
+        const sections: WordSection[] = data.words.map((word: Word) => ({
+          id: word.id,
+          title: word.word,
+          description: `뜻 설명 : ${word.meaning}`,
+          value: "",
+        }));
+        setWordSections(sections);
+      }
+    } catch (error) {
+      console.error("Error fetching words:", error);
+      alert("단어를 불러오는 중 오류가 발생했습니다.");
+      setWordSections([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchWords();
+    fetchStudiedDays();
+  }, []);
+
+  const saveSentences = async (userId: string = USER_ID) => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/evaluate/batch`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            accept: "*/*",
+            "X-User-Id": userId,
+          },
+          body: JSON.stringify({
+            userSentences: wordSections.map((section) => ({
+              word: section.title,
+              sentence: section.value,
+            })),
+          }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (data.feedbacks && Array.isArray(data.feedbacks)) {
+        const updatedFeedbacks: FeedbackData[] = data.feedbacks.map(
+          (fb: { feedback: string; examples: string[] }, index: number) => ({
+            id: index + 1,
+            sentiment: fb.feedback,
+            situations: fb.examples,
+          }),
+        );
+        setFeedbackData(updatedFeedbacks);
+      }
+    } catch (error) {
+      console.error("Error saving sentences:", error);
+      alert("예문을 저장하는 중 오류가 발생했습니다.");
+    }
+  };
+
+  const fetchStudiedDays = async (userId: string = USER_ID) => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/home`,
+        {
+          method: "GET",
+          headers: {
+            accept: "*/*",
+            "X-User-Id": userId,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+      const data = await response.json();
+      setStudiedDays(data.currentStreak || 0);
+      // Handle the data as needed
+    } catch (error) {
+      console.error("Error fetching studied days:", error);
+    }
+  };
+
+  const handleInputChange = (id: string, newValue: string) => {
     setWordSections((prev) =>
       prev.map((s) => (s.id === id ? { ...s, value: newValue } : s)),
     );
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     console.log("예문 데이터:", wordSections);
-    setShowFeedback(true);
+    setIsSaving(true);
+    try {
+      await saveSentences();
+      setShowFeedback(true);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleGoBack = () => {
@@ -109,7 +177,7 @@ export const CreationPage = () => {
 
             <div className="inline-flex rounded-full bg-indigo-100 px-6 py-2.5">
               <span className="text-sm font-semibold text-indigo-700">
-                10일째 공부중
+                {studiedDays}일째 공부중
               </span>
             </div>
           </section>
@@ -118,53 +186,57 @@ export const CreationPage = () => {
             {showFeedback ? (
               <>
                 <div className="space-y-4">
-                  {feedbackData.map((feedback) => (
-                    <div
-                      key={feedback.id}
-                      className="rounded-lg bg-blue-50 p-6 space-y-3"
-                    >
-                      <div className="rounded-lg bg-white p-4 space-y-2">
-                        <h3 className="text-sm font-semibold text-slate-900">
-                          {wordSections[feedback.id - 1]?.title}
-                        </h3>
-                        <p className="text-xs text-slate-600">
-                          {wordSections[feedback.id - 1]?.description}
-                        </p>
-                      </div>
+                  {feedbackData.map((feedback, idx) => {
+                    const section = wordSections[idx];
+                    if (!section) return null;
+                    return (
+                      <div
+                        key={feedback.id}
+                        className="rounded-lg bg-blue-50 p-6 space-y-3"
+                      >
+                        <div className="rounded-lg bg-white p-4 space-y-2">
+                          <h3 className="text-sm font-semibold text-slate-900">
+                            {section.title}
+                          </h3>
+                          <p className="text-xs text-slate-600">
+                            {section.description}
+                          </p>
+                        </div>
 
-                      <div className="rounded-lg bg-white p-4">
-                        <p className="text-xs text-slate-600">
-                          {wordSections[feedback.id - 1]?.value}
-                        </p>
-                      </div>
+                        <div className="rounded-lg bg-white p-4">
+                          <p className="text-xs text-slate-600">
+                            {section.value}
+                          </p>
+                        </div>
 
-                      <div className="rounded-lg bg-white p-4 space-y-2">
-                        <h4 className="text-sm font-semibold text-slate-900">
-                          한줄평
-                        </h4>
-                        <p className="text-xs text-slate-600">
-                          {feedback.sentiment}
-                        </p>
-                      </div>
+                        <div className="rounded-lg bg-white p-4 space-y-2">
+                          <h4 className="text-sm font-semibold text-slate-900">
+                            한줄평
+                          </h4>
+                          <p className="text-xs text-slate-600">
+                            {feedback.sentiment}
+                          </p>
+                        </div>
 
-                      <div className="rounded-lg bg-white p-4 space-y-2">
-                        <h4 className="text-sm font-semibold text-slate-900">
-                          적용 상황
-                        </h4>
-                        <ul className="space-y-1">
-                          {feedback.situations.map((situation, idx) => (
-                            <li
-                              key={`${feedback.id}-${idx}`}
-                              className="text-xs text-slate-600 flex items-start"
-                            >
-                              <span className="mr-2">•</span>
-                              <span>{situation}</span>
-                            </li>
-                          ))}
-                        </ul>
+                        <div className="rounded-lg bg-white p-4 space-y-2">
+                          <h4 className="text-sm font-semibold text-slate-900">
+                            적용 상황
+                          </h4>
+                          <ul className="space-y-1">
+                            {feedback.situations.map((situation, sidx) => (
+                              <li
+                                key={`${feedback.id}-${sidx}`}
+                                className="text-xs text-slate-600 flex items-start"
+                              >
+                                <span className="mr-2">•</span>
+                                <span>{situation}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 <div className="flex justify-end pt-4">
@@ -179,24 +251,39 @@ export const CreationPage = () => {
             ) : (
               <>
                 <div className="space-y-4">
-                  {wordSections.map((section, index) => (
-                    <WordSectionCard
-                      key={section.id}
-                      tone={index === 2 ? "orange" : "blue"}
-                      title={section.title}
-                      description={section.description}
-                      value={section.value}
-                      onChange={(v) => handleInputChange(section.id, v)}
-                    />
-                  ))}
+                  {loading ? (
+                    <div className="text-center py-8">
+                      <p className="text-slate-600">단어를 불러오는 중...</p>
+                    </div>
+                  ) : (
+                    wordSections.map((section, index) => (
+                      <WordSectionCard
+                        key={section.id}
+                        tone={index % 2 === 0 ? "blue" : "orange"}
+                        title={section.title}
+                        description={section.description}
+                        value={section.value}
+                        onChange={(v) => handleInputChange(section.id, v)}
+                      />
+                    ))
+                  )}
                 </div>
 
                 <div className="flex justify-end pt-4">
                   <button
                     onClick={handleSubmit}
-                    className="rounded-full bg-indigo-500 px-8 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-600"
+                    disabled={loading || wordSections.length === 0 || isSaving}
+                    className={[
+                      "rounded-full px-8 py-2.5 text-sm font-semibold text-white transition",
+                      isSaving
+                        ? "bg-indigo-400 cursor-wait"
+                        : "bg-indigo-500 hover:bg-indigo-600 cursor-pointer",
+                      (loading || wordSections.length === 0) && !isSaving
+                        ? "opacity-50 cursor-not-allowed"
+                        : "",
+                    ].join(" ")}
                   >
-                    예문 남기기
+                    {isSaving ? "저장 중..." : "예문 남기기"}
                   </button>
                 </div>
               </>
