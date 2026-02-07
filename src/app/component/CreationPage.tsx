@@ -185,54 +185,70 @@ export const CreationPage = () => {
           <section className="w-full space-y-6 lg:pl-12">
             {showFeedback ? (
               <>
-                <div className="space-y-4">
+                <div className="space-y-5">
                   {feedbackData.map((feedback, idx) => {
                     const section = wordSections[idx];
                     if (!section) return null;
+
+                    const tone = idx % 2 === 0 ? "blue" : "orange";
+                    const toneBg =
+                      tone === "blue"
+                        ? "from-[#EAF2FF] via-[#DCE9FF] to-[#D6E6FF]"
+                        : "from-[#FFF0EA] via-[#FFE2D7] to-[#FFD6C6]";
+
                     return (
                       <div
                         key={feedback.id}
-                        className="rounded-lg bg-blue-50 p-6 space-y-3"
+                        className={[
+                          "group relative overflow-hidden rounded-3xl",
+                          "bg-gradient-to-b",
+                          toneBg,
+                          "shadow-[0_10px_28px_rgba(15,23,42,0.10)]",
+                          "ring-1 ring-white/50",
+                        ].join(" ")}
                       >
-                        <div className="rounded-lg bg-white p-4 space-y-2">
-                          <h3 className="text-sm font-semibold text-slate-900">
-                            {section.title}
-                          </h3>
-                          <p className="text-xs text-slate-600">
-                            {section.description}
-                          </p>
-                        </div>
+                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/50 via-white/10 to-transparent opacity-40" />
 
-                        <div className="rounded-lg bg-white p-4">
-                          <p className="text-xs text-slate-600">
-                            {section.value}
-                          </p>
-                        </div>
+                        <div className="relative px-7 pb-6 pt-6 space-y-4">
+                          <div>
+                            <h3 className="text-[20px] font-extrabold tracking-tight text-slate-900">
+                              {section.title}
+                            </h3>
+                            <p className="mt-1 text-[13px] leading-relaxed text-slate-700/90">
+                              {section.description}
+                            </p>
+                          </div>
 
-                        <div className="rounded-lg bg-white p-4 space-y-2">
-                          <h4 className="text-sm font-semibold text-slate-900">
-                            한줄평
-                          </h4>
-                          <p className="text-xs text-slate-600">
-                            {feedback.sentiment}
-                          </p>
-                        </div>
+                          <div className="rounded-2xl bg-white/55 backdrop-blur-md ring-1 ring-white/50 shadow-[0_8px_20px_rgba(15,23,42,0.06)] px-5 py-4">
+                            <p className="text-[14px] font-semibold text-slate-800/90">
+                              {section.value || "예문이 비어 있어요."}
+                            </p>
+                          </div>
 
-                        <div className="rounded-lg bg-white p-4 space-y-2">
-                          <h4 className="text-sm font-semibold text-slate-900">
-                            적용 상황
-                          </h4>
-                          <ul className="space-y-1">
-                            {feedback.situations.map((situation, sidx) => (
-                              <li
-                                key={`${feedback.id}-${sidx}`}
-                                className="text-xs text-slate-600 flex items-start"
-                              >
-                                <span className="mr-2">•</span>
-                                <span>{situation}</span>
-                              </li>
-                            ))}
-                          </ul>
+                          <div className="h-px w-full bg-slate-400/40" />
+
+                          <div className="rounded-2xl bg-white/65 backdrop-blur-md ring-1 ring-white/50 shadow-[0_8px_20px_rgba(15,23,42,0.06)] px-5 py-4 space-y-2">
+                            <h4 className="text-[18px] font-semibold text-slate-900">
+                              한줄평
+                            </h4>
+                            <p className="text-[12px] text-slate-700">
+                              {feedback.sentiment}
+                            </p>
+                            <h4 className="text-[16px] font-semibold text-slate-900">
+                              AI 추천 예문
+                            </h4>
+                            <ul className="space-y-1">
+                              {feedback.situations.map((situation, sidx) => (
+                                <li
+                                  key={`${feedback.id}-${sidx}`}
+                                  className="text-[12px] text-slate-600 flex items-start"
+                                >
+                                  <span className="mr-2">•</span>
+                                  <span>{situation}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
                         </div>
                       </div>
                     );
