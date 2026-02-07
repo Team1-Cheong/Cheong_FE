@@ -22,7 +22,6 @@ type Props = {
   onNextMonth: () => void;
   today: Today;
   solvedDays?: string[];
-
   home: HomeApiResponse | null;
   homeError: string | null;
 };
@@ -33,10 +32,17 @@ const formatDate = (y: number, m: number, d: number) =>
 const toIsoDate = (y: number, m: number, d: number): ISODateString =>
   `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}` as ISODateString;
 
+const chunk3 = <T,>(arr: T[]) => {
+  const out: T[][] = [];
+  for (let i = 0; i < arr.length; i += 3) out.push(arr.slice(i, i + 3));
+  return out;
+};
+
 export default function HistoryPage(props: Props) {
   const { year, month, selectedDay, today, solvedDays, home } = props;
 
   const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [pageIndex, setPageIndex] = useState(0);
 
   useEffect(() => {
     const ac = new AbortController();
@@ -55,8 +61,8 @@ export default function HistoryPage(props: Props) {
 
         if (!res.ok) throw new Error();
 
-        const json = await res.json();
-        setHistory(json.result);
+        const json = (await res.json()) as HistoryApiResponse;
+        setHistory(Array.isArray(json) ? json : []);
       } catch (e) {
         if ((e as { name?: string }).name === "AbortError") return;
         setHistory([]);
@@ -73,24 +79,45 @@ export default function HistoryPage(props: Props) {
     [year, month, selectedDay],
   );
 
-  const historyByDate = useMemo(() => {
-    const map = new Map<ISODateString, HistoryItem[]>();
+  useEffect(() => {
+    setPageIndex(0);
+  }, [selectedIso]);
 
-    (Array.isArray(history) ? history : []).forEach((item) => {
-      const iso = item.createdAt.slice(0, 10) as ISODateString;
+  const selectedHistory = useMemo(() => {
+    const filtered = (Array.isArray(history) ? history : []).filter(
+      (item) => (item.createdAt.slice(0, 10) as ISODateString) === selectedIso,
+    );
 
-      if (!map.has(iso)) map.set(iso, []);
-      map.get(iso)!.push(item);
-    });
+    filtered.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
 
-    return map;
-  }, [history]);
+    return filtered;
+  }, [history, selectedIso]);
 
-  const selectedHistory = historyByDate.get(selectedIso) ?? [];
+  const todayIso = useMemo(
+    () => toIsoDate(today.year, today.month, today.day),
+    [today],
+  );
 
-  const selectedStudied = useMemo(() => {
-    return selectedHistory.length > 0;
-  }, [selectedHistory]);
+  const todayCompletedCount = useMemo(() => {
+    return history.filter(
+      (item) => (item.createdAt.slice(0, 10) as ISODateString) === todayIso,
+    ).length;
+  }, [history, todayIso]);
+
+  const selectedStudied = selectedHistory.length > 0;
+
+  const pages = useMemo(() => chunk3(selectedHistory), [selectedHistory]);
+  const totalPages = pages.length;
+
+  const safePageIndex =
+    totalPages === 0 ? 0 : Math.min(pageIndex, totalPages - 1);
+
+  const pageItems = totalPages === 0 ? [] : pages[safePageIndex];
+
+  const canPrev = safePageIndex > 0;
+  const canNext = safePageIndex < totalPages - 1;
+
+  const showPager = totalPages >= 2;
 
   return (
     <div className="mx-auto max-w-[1420px] px-6 sm:px-10 lg:px-20 xl:px-28 py-10">
@@ -117,7 +144,7 @@ export default function HistoryPage(props: Props) {
               <span className="text-[14px] font-semibold text-slate-700">
                 오늘 완료{" "}
                 <span className="font-bold text-indigo-600">
-                  {home?.todayCompletedCount ?? 0}개
+                  {todayCompletedCount}개
                 </span>
               </span>
             </div>
@@ -141,8 +168,51 @@ export default function HistoryPage(props: Props) {
 
         <section className="min-w-0">
           <div className="mb-4 flex items-center justify-between">
-            <div className="text-[16px] font-semibold text-slate-800">
-              선택한 날짜의 예문
+            <div className="flex items-center gap-2">
+              <div className="text-[16px] font-semibold text-slate-800">
+                선택한 날짜의 예문
+              </div>
+
+              {showPager && (
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setPageIndex((p) => Math.max(0, p - 1))}
+                    disabled={!canPrev}
+                    className={[
+                      "grid h-7 w-7 place-items-center rounded-full text-[16px] font-bold transition",
+                      canPrev
+                        ? "text-slate-700 hover:bg-slate-100"
+                        : "cursor-not-allowed text-slate-300",
+                    ].join(" ")}
+                    aria-label="이전"
+                  >
+                    &lt;
+                  </button>
+
+                  <span className="px-1 text-[12px] font-semibold text-slate-600">
+                    {totalPages === 0
+                      ? "0 / 0"
+                      : `${safePageIndex + 1} / ${totalPages}`}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setPageIndex((p) => Math.min(totalPages - 1, p + 1))
+                    }
+                    disabled={!canNext}
+                    className={[
+                      "grid h-7 w-7 place-items-center rounded-full text-[16px] font-bold transition",
+                      canNext
+                        ? "text-slate-700 hover:bg-slate-100"
+                        : "cursor-not-allowed text-slate-300",
+                    ].join(" ")}
+                    aria-label="다음"
+                  >
+                    &gt;
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="hidden sm:flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 ring-1 ring-slate-200 shadow-sm">
@@ -157,12 +227,12 @@ export default function HistoryPage(props: Props) {
           </div>
 
           <div className="flex flex-col gap-6">
-            {selectedHistory.length === 0 ? (
+            {pageItems.length === 0 ? (
               <div className="text-sm text-slate-400">
                 작성된 예문이 없습니다.
               </div>
             ) : (
-              selectedHistory.map((item) => (
+              pageItems.map((item) => (
                 <WordCard
                   key={item.id}
                   title={item.word}
