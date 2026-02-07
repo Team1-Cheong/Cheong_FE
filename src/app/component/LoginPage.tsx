@@ -103,15 +103,15 @@ export const LoginPage = () => {
 
               <button
                 type="submit"
-                className="w-full rounded bg-indigo-500 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-600"
+                className="inline-flex w-full items-center justify-center rounded-full bg-white/40 px-6 py-3 text-[13px] font-bold text-black backdrop-blur-xl ring-1 ring-white/70 shadow-[0_14px_28px_rgba(15,23,42,0.14)] transition hover:-translate-y-0.5 hover:bg-white/50"
               >
                 로그인
               </button>
 
               <button
                 type="button"
-                className="w-full rounded border border-indigo-400 py-2.5 text-sm font-semibold text-indigo-500 transition hover:bg-indigo-50"
                 onClick={() => router.push("/signup")}
+                className="inline-flex w-full items-center justify-center rounded-full bg-white/40 px-6 py-3 text-[13px] font-bold text-black/30 backdrop-blur-xl ring-1 ring-white/70 shadow-[0_14px_28px_rgba(15,23,42,0.10)] transition hover:-translate-y-0.5 hover:bg-white/50"
               >
                 회원가입
               </button>

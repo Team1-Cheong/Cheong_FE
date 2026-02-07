@@ -42,12 +42,13 @@ export default function HomeContent() {
                 <h1 className="mt-6 text-[44px] font-extrabold leading-[1.05] tracking-tight sm:text-[60px]">
                   한 문장으로,
                   <br />
-                  <span className="italic font-semibold">기억을 남기다.</span>
+                  <span className="italic font-semibold">어휘력을 되찾다.</span>
                 </h1>
 
                 <p className="mt-4 max-w-[52ch] text-[15px] leading-relaxed text-white/85 sm:text-[16px]">
-                  단어를 외우는 대신, 오늘의 감정과 상황을 한 문장으로
-                  만들어보세요. AI가 더 자연스러운 예문 3가지를 제안해줘요.
+                  오늘의 단어로 예문을 쓰면, AI가 한줄평과 더 자연스러운 예문
+                  3개를 제안해요. 너무 완벽할 필요 없어요. 차근차근 어휘력을
+                  키워봐요.
                 </p>
 
                 <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -127,12 +128,15 @@ export default function HomeContent() {
                             <li className="flex gap-2">
                               <span className="mt-2 h-1.5 w-1.5 rounded-full bg-white/50" />
                               <span>
-                                망설임 끝의 한 걸음이 내 마음을 바꿨다.
+                                작은 용기를 내어 평소에 망설이던 발표에
+                                자원했다.
                               </span>
                             </li>
                             <li className="flex gap-2">
                               <span className="mt-2 h-1.5 w-1.5 rounded-full bg-white/50" />
-                              <span>오늘의 용기가 내일의 나를 성장시킨다.</span>
+                              <span>
+                                오늘의 작은 용기가 내일의 나를 성장시킨다.
+                              </span>
                             </li>
                           </ul>
                         </div>

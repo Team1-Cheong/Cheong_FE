@@ -98,13 +98,14 @@ export const MyPage = () => {
                   <div className="flex gap-2">
                     <button
                       onClick={handleCancelClick}
-                      className="flex-1 rounded border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition"
+                      className="flex-1 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-200"
                     >
                       취소
                     </button>
+
                     <button
                       onClick={handleSaveClick}
-                      className="flex-1 rounded bg-indigo-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-600 transition"
+                      className="flex-1 rounded-full bg-indigo-100 px-3 py-1.5 text-xs font-semibold text-indigo-600 transition hover:bg-indigo-200"
                     >
                       저장
                     </button>
@@ -173,13 +174,14 @@ export const MyPage = () => {
           <div className="flex gap-3 pt-4">
             <button
               onClick={handleWithdraw}
-              className="flex-1 rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition"
+              className="flex-1 inline-flex items-center justify-center rounded-lg bg-white/40 px-4 py-2.5 text-sm font-bold text-black/40 backdrop-blur-xl ring-1 ring-white/70 shadow-[0_10px_20px_rgba(15,23,42,0.08)] transition hover:-translate-y-0.5 hover:bg-white/50"
             >
               회원 탈퇴
             </button>
+
             <button
               onClick={handleLogout}
-              className="flex-1 rounded-lg bg-indigo-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-600 transition"
+              className="flex-1 inline-flex items-center justify-center rounded-lg bg-white/50 px-4 py-2.5 text-sm font-bold text-black backdrop-blur-xl ring-1 ring-white/80 shadow-[0_14px_28px_rgba(15,23,42,0.14)] transition hover:-translate-y-0.5 hover:bg-white/60"
             >
               로그 아웃
             </button>
