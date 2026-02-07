@@ -166,6 +166,7 @@ export default function HistoryPage(props: Props) {
                 <WordCard
                   key={item.id}
                   title={item.word}
+                  meaning={item.meaning}
                   userSentence={item.userSentence}
                   aiEvaluation={item.aiEvaluation}
                   aiSentences={item.aiSentences}
