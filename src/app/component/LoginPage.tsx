@@ -14,7 +14,7 @@ export const LoginPage = () => {
     event.preventDefault();
     const isValid = userId && password;
     if (isValid) {
-      router.push("/main/create_sentences");
+      router.push("/main/home");
     }
     setErrorMessage(isValid ? "" : "아이디또는 비밀번호가 올바르지 않습니다.");
   };

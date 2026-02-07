@@ -290,10 +290,10 @@ export const CreationPage = () => {
                     onClick={handleSubmit}
                     disabled={loading || wordSections.length === 0 || isSaving}
                     className={[
-                      "rounded-full px-8 py-2.5 text-sm font-semibold text-white transition",
+                      "group inline-flex items-center gap-2 rounded-full px-6 py-3 text-[13px] font-semibold backdrop-blur-md transition ring-1",
                       isSaving
-                        ? "bg-indigo-400 cursor-wait"
-                        : "bg-indigo-500 hover:bg-indigo-600 cursor-pointer",
+                        ? "bg-slate-900/6 text-slate-700 ring-slate-900/20 cursor-wait"
+                        : "bg-slate-900/3 text-slate-900 ring-slate-900/15 hover:bg-slate-900/6 cursor-pointer",
                       (loading || wordSections.length === 0) && !isSaving
                         ? "opacity-50 cursor-not-allowed"
                         : "",
