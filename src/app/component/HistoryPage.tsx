@@ -61,8 +61,8 @@ export const HistoryPage = () => {
   const dayLabels = ["일", "월", "화", "수", "목", "금", "토"];
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col">
-      <main className="flex flex-1 px-8 py-12">
+    <div className="w-full bg-slate-50 text-slate-900 flex flex-col">
+      <main className="flex px-8 py-4">
         <div className="mx-auto w-full max-w-6xl">
           {/* 제목 및 설명 */}
           <div className="mb-8 space-y-2">

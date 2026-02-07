@@ -15,10 +15,12 @@ export const Header = () => {
       )}
       <header className="flex items-center justify-between px-8 py-6 border-b border-slate-200 bg-white relative z-50">
         <div className="flex items-center gap-2 text-sm font-semibold tracking-wide text-slate-700">
-          <span className="inline-flex h-5 w-5 items-center justify-center border border-slate-400 text-[10px]">
-            X
-          </span>
-          <span>LOGO</span>
+          <img
+            src="/logo_icon.png"
+            alt="로고"
+            className="h-8 w-10 object-cover object-center scale-300"
+          />
+          <span>한마디</span>
         </div>
         <button
           onClick={() => setIsDropdownOpen((prev) => !prev)}
@@ -62,11 +64,11 @@ export const Header = () => {
           <button
             onClick={() => {
               setIsDropdownOpen(false);
-              router.push("/main/my_page");
+              router.push("/main/create_sentences");
             }}
             className="w-full px-4 py-3 text-left text-base font-semibold text-slate-900 hover:bg-indigo-50 rounded-lg transition"
           >
-            마이페이지
+            예문 만들기
           </button>
           <button
             onClick={() => {
@@ -77,14 +79,15 @@ export const Header = () => {
           >
             학습 이력
           </button>
+
           <button
             onClick={() => {
               setIsDropdownOpen(false);
-              router.push("/main/create_sentences");
+              router.push("/main/my_page");
             }}
             className="w-full px-4 py-3 text-left text-base font-semibold text-slate-900 hover:bg-indigo-50 rounded-lg transition"
           >
-            예문 만들기
+            마이페이지
           </button>
         </div>
       </div>

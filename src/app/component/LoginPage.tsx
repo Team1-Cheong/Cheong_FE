@@ -12,18 +12,22 @@ export const LoginPage = () => {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const isValid = userId === "demo" && password === "demo1234";
-    setErrorMessage(isValid ? "" : "아이디와 비밀번호가 일치하지 않습니다.");
+    const isValid = userId && password;
+    if (isValid) {
+      router.push("/main/create_sentences");
+    }
+    setErrorMessage(isValid ? "" : "아이디또는 비밀번호가 올바르지 않습니다.");
   };
 
   return (
     <div className="min-h-screen bg-white text-slate-900 flex flex-col">
       <main className="flex flex-1 items-center justify-center px-8 pb-16 pt-6">
         <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-10 lg:grid-cols-2 lg:items-center">
-          <section className="relative aspect-[4/3] w-full rounded-md border border-slate-200 bg-slate-100">
-            <div className="absolute inset-10 rounded-md border border-slate-200 bg-slate-200/40" />
-            <span className="absolute left-1/2 top-1/2 h-[70%] w-[2px] -translate-x-1/2 -translate-y-1/2 rotate-45 bg-slate-300" />
-            <span className="absolute left-1/2 top-1/2 h-[70%] w-[2px] -translate-x-1/2 -translate-y-1/2 -rotate-45 bg-slate-300" />
+          <section className="w-full">
+            <section className="w-full flex items-center justify-center">
+              <img src="/main_logo.png" alt="Main Logo" className="max-w-sm" />
+            </section>
+            {/* Left column for branding or hero content */}
           </section>
 
           <section className="w-full">
