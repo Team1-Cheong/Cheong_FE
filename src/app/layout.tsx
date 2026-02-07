@@ -1,5 +1,11 @@
-import { Header } from "./component/Header";
 import "./globals.css";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  icons: {
+    icon: "/logo_icon.png",
+  },
+};
 
 export default function RootLayout({
   children,
@@ -8,10 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html>
-      <body>
-        <Header />
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

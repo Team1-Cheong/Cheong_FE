@@ -84,45 +84,20 @@ export const CreationPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 flex flex-col">
+    <div className="w-full bg-white text-slate-900 flex flex-col">
       {/* 사이드 패널 메뉴 */}
 
-      <main className="flex flex-1 items-center justify-center px-8 py-16">
+      <main className="flex items-center justify-center px-8 py-4">
         <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-12 lg:grid-cols-2 lg:items-center">
           {/* 좌측 섹션 */}
           <section className="flex flex-col items-center justify-center space-y-6 lg:border-r lg:border-slate-200 lg:pr-12">
             {/* 불 아이콘 */}
             <div className="relative h-48 w-40">
-              <svg
-                viewBox="0 0 100 140"
-                className="h-full w-full"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                {/* 불 모양 */}
-                <defs>
-                  <linearGradient
-                    id="fireGradient"
-                    x1="0%"
-                    y1="0%"
-                    x2="0%"
-                    y2="100%"
-                  >
-                    <stop offset="0%" style={{ stopColor: "#ff4500" }} />
-                    <stop offset="50%" style={{ stopColor: "#ffa500" }} />
-                    <stop offset="100%" style={{ stopColor: "#ffeb3b" }} />
-                  </linearGradient>
-                </defs>
-                <path
-                  d="M50 10 Q70 40 70 70 Q70 100 50 120 Q30 100 30 70 Q30 40 50 10"
-                  fill="url(#fireGradient)"
-                />
-                <path
-                  d="M50 30 Q60 50 60 70 Q60 90 50 105 Q40 90 40 70 Q40 50 50 30"
-                  fill="#ff6b35"
-                  opacity="0.8"
-                />
-              </svg>
+              <img
+                src="/streak.svg"
+                alt="Streak"
+                className="h-full w-full object-contain"
+              />
             </div>
 
             {/* 텍스트 */}

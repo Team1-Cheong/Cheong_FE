@@ -12,10 +12,35 @@ export const SignupPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
+  const validatePassword = (password: string): boolean => {
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const isLongEnough = password.length >= 8;
+    return hasUpperCase && hasLowerCase && hasNumber && isLongEnough;
+  };
+
+  const equalPasswords = (
+    password: string,
+    confirmPassword: string,
+  ): boolean => {
+    return password === confirmPassword;
+  };
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!userName || !userId || !password || !confirmPassword) {
       setErrorMessage("모든 항목을 입력해 주세요.");
+      return;
+    }
+    if (!equalPasswords(password, confirmPassword)) {
+      setErrorMessage("비밀번호가 일치하지 않습니다.");
+      return;
+    }
+    if (!validatePassword(password)) {
+      setErrorMessage(
+        "비밀번호는 8자리 이상, 영문 대소문자와 숫자를 포함해야 합니다.",
+      );
       return;
     }
     if (password !== confirmPassword) {
@@ -30,10 +55,11 @@ export const SignupPage = () => {
     <div className="min-h-screen bg-white text-slate-900 flex flex-col">
       <main className="flex flex-1 items-center justify-center px-8 pb-16 pt-6">
         <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-10 lg:grid-cols-2 lg:items-center">
-          <section className="relative aspect-[4/3] w-full rounded-md border border-slate-200 bg-slate-100">
-            <div className="absolute inset-10 rounded-md border border-slate-200 bg-slate-200/40" />
-            <span className="absolute left-1/2 top-1/2 h-[70%] w-[2px] -translate-x-1/2 -translate-y-1/2 rotate-45 bg-slate-300" />
-            <span className="absolute left-1/2 top-1/2 h-[70%] w-[2px] -translate-x-1/2 -translate-y-1/2 -rotate-45 bg-slate-300" />
+          <section className="w-full">
+            <section className="w-full flex items-center justify-center">
+              <img src="/main_logo.png" alt="Main Logo" className="max-w-sm" />
+            </section>
+            {/* Left column for branding or hero content */}
           </section>
 
           <section className="w-full">
