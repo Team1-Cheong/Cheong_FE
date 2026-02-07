@@ -15,11 +15,7 @@ export const Header = () => {
       )}
       <header className="flex items-center justify-between px-8 py-6 border-b border-slate-200 bg-white relative z-50">
         <div className="flex items-center gap-2 text-sm font-semibold tracking-wide text-slate-700">
-          <img
-            src="/logo_icon.png"
-            alt="로고"
-            className="h-8 w-10 object-cover object-center scale-300"
-          />
+          <img src="/logo_icon.png" alt="로고" className="h-8 w-10" />
           <span>한마디</span>
         </div>
         <button
