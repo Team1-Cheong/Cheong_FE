@@ -13,13 +13,8 @@ export default function HomeContent() {
         <section className="relative h-[calc(100vh-64px)] min-h-[640px] w-full overflow-hidden">
           {/* Background */}
           <div className="absolute inset-0">
-            <Image
-              src="/home-bg.png"
-              alt="home background"
-              fill
-              priority
-              className="object-cover"
-            />
+            <Image src="/Home-bg.png" alt="home background" fill />
+
             <div className="absolute inset-0 bg-gradient-to-b from-white/55 via-white/20 to-white/55" />
             <div className="absolute inset-0 bg-gradient-to-r from-[#0B1020]/70 via-[#0B1020]/25 to-transparent" />
           </div>
