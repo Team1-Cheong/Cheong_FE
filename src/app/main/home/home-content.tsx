@@ -59,7 +59,7 @@ export default function HomeContent() {
                   </Link>
 
                   <Link
-                    href="/main/learn"
+                    href="/main/create_sentences"
                     className="group inline-flex items-center gap-2 rounded-full bg-white/10 px-6 py-3 text-[13px] font-semibold text-white ring-1 ring-white/15 backdrop-blur-md transition hover:bg-white/15"
                   >
                     학습하기
