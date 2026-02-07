@@ -140,7 +140,7 @@ export default function WordCard({
         <div className="rounded-3xl bg-white/75 backdrop-blur-sm p-5 ring-1 ring-white/60 shadow-[0_10px_26px_rgba(15,23,42,0.08)]">
           <h4 className="text-[18px] font-extrabold text-slate-900">한줄평</h4>
 
-          <p className="mt-1.5 text-[14px] font-semibold leading-relaxed text-slate-700/90">
+          <p className="mt-1.5 text-[12px] font-semibold leading-relaxed text-slate-700/90">
             {aiEvaluation}
           </p>
 
@@ -148,7 +148,7 @@ export default function WordCard({
             AI 추천 예문
           </h5>
 
-          <ul className="mt-3 space-y-2 text-[14px] font-semibold text-slate-700/90">
+          <ul className="mt-3 space-y-2 text-[12px] font-semibold text-slate-700/90">
             {aiSentences.map((s, idx) => (
               <li key={`${s}-${idx}`} className="flex items-start gap-2.5">
                 <span className="mt-2 h-1.5 w-1.5 rounded-full bg-slate-500/70" />
