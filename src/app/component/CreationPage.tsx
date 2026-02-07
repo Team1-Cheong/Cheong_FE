@@ -192,7 +192,7 @@ export const CreationPage = () => {
                     const section = wordSections[idx];
                     if (!section) return null;
 
-                    const tone = idx % 2 === 0 ? "blue" : "orange";
+                    const tone = section.review ? "orange" : "blue";
                     const toneBg =
                       tone === "blue"
                         ? "from-[#EAF2FF] via-[#DCE9FF] to-[#D6E6FF]"
